@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct RestaurantsView: View {
     
     @Environment(\.managedObjectContext) var managedObjectContext
         
@@ -23,7 +23,9 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List(restaurants, rowContent: { content in
-                Text(content.name ?? "")
+                NavigationLink(content.name ?? "",
+                               destination: RestaurantDetails(viewModel: RestaurantDetailViewModel(context: managedObjectContext,
+                                                            restaurant: content)))
             })
                 .navigationBarTitle("Restaurant Reviewer")
                 .toolbar(content: {
@@ -47,6 +49,6 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         let context = ContextManager.preview.persistentContainer.viewContext
-        ContentView().environment(\.managedObjectContext, context)
+        RestaurantsView().environment(\.managedObjectContext, context)
     }
 }

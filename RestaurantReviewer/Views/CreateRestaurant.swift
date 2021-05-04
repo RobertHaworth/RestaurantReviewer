@@ -44,10 +44,8 @@ struct CreateRestaurant: View {
                      })
             }
             .padding(0)
+            .navigationBarTitle("New Restaurant")
             .toolbar(content: {
-                    ToolbarItem(placement: .principal) {
-                        Text("New Restaurant")
-                    }
                     ToolbarItem(placement: .cancellationAction) {
                         Button(action: { presentationMode.wrappedValue.dismiss() },
                                label: { Text("Cancel") })
@@ -79,7 +77,8 @@ struct RowContent: View {
     
     var body: some View {
         HStack {
-            selected ? Image(systemName: "checkmark.circle.fill").foregroundColor(.blue) : Image(systemName: "circle").foregroundColor(.black)
+            selected ? Image(systemName: "checkmark.circle.fill").foregroundColor(.blue) :
+                       Image(systemName: "circle").foregroundColor(.black)
             Text(name)
         }
     }

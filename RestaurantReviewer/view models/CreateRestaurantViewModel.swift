@@ -29,6 +29,7 @@ class CreateRestaurantViewModel: ObservableObject {
     }
     
     func save(contextManager: NSManagedObjectContext) -> Bool {
+        
         let restaurant = Restaurant(context: contextManager)
         restaurant.id = UUID()
         restaurant.name = name

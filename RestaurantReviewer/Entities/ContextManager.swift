@@ -14,25 +14,24 @@ class ContextManager {
     // MARK: - Singleton access.
     static let instance: ContextManager = ContextManager(inMemory: true)
     
-    // MARK: - Core Data stack
-
-    let persistentContainer: NSPersistentContainer
-    
     static var preview: ContextManager = {
         let controller = ContextManager(inMemory: true)
         
         let context = controller.persistentContainer.viewContext
-        (0...5).forEach { enumeratedValue in
-            let test = Restaurant(context: context)
-            test.id = UUID()
-            test.name = "Example Restaurant \(enumeratedValue)"
-        }
         
-        controller.previewData()
+        
+        controller.populateData()
         
         controller.saveContext()
+        
         return controller
     }()
+    
+    // MARK: - Core Data stack
+
+    let persistentContainer: NSPersistentContainer
+    
+    
     
     init(inMemory: Bool) {
         
@@ -42,24 +41,27 @@ class ContextManager {
             persistentContainer.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
         
-        persistentContainer.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        persistentContainer.loadPersistentStores(completionHandler: { [weak self] (storeDescription, error) in
             
             // Backfill error handling here.
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
+            } else {
+                self?.populateCuisines()
             }
         })
         
     }
     
-    
-    func containsData() -> Bool {
+    func previewRestaurant() -> Restaurant? {
+        let context = persistentContainer.viewContext
+        
         do {
-            let restaurantCount = try persistentContainer.viewContext.count(for: NSFetchRequest<Restaurant>(entityName: "Restaurant"))
-            return restaurantCount != 0
+            return try context.fetch(NSFetchRequest<Restaurant>(entityName: "Restaurant")).first(where: { ($0.reviews?.count ?? 0) > 0 })
         } catch {
-            return false
+            print("error retrieving restaurant for previews")
         }
+        return nil
     }
     
     // MARK: - Core Data Saving support
@@ -78,18 +80,72 @@ class ContextManager {
         }
     }
     
-    fileprivate var defaultCuisineNames: [String] {
-        return ["American", "Asian", "Indian", "English", "Barbecue", "Mexican", "Dutch", "Spanish"]
+    /// Pre Loading 3 restaurants
+    func populateData() {
+        let context = persistentContainer.viewContext
+        
+        do {
+            let cuisines = try context.fetch(NSFetchRequest<Cuisine>(entityName: "Cuisine"))
+            // No Reviews
+            let restaurantOne = Restaurant(context: context)
+            
+            restaurantOne.id = UUID()
+            restaurantOne.name = "MOOYAH Burgers"
+            
+            if let cuisine = cuisines.first {
+                restaurantOne.cuisines = [cuisine]
+            }
+            
+            
+            /// Nine Reviews
+            let restaurantTwo = Restaurant(context: context)
+            
+            restaurantTwo.id = UUID()
+            restaurantTwo.name = "North and South"
+            
+            restaurantTwo.cuisines = Set(cuisines.filter({ $0.name == "Barbeque" || $0.name == "American" })) as NSSet
+            
+            
+            let restaurantThree = Restaurant(context: context)
+            
+            restaurantThree.id = UUID()
+            restaurantThree.name = "Tex Tubb's Taco Palace"
+            
+            restaurantThree.cuisines = Set(cuisines.filter({ $0.name == "Mexican" })) as NSSet
+            
+            let reviewOne = Review(context: context)
+            
+            reviewOne.id = UUID()
+            reviewOne.visitDate = Date()
+            reviewOne.createdDate = Date()
+            reviewOne.notes = "Tex Tubb's may be the single greatest taco shop ever."
+            reviewOne.starCount = 5
+            
+            restaurantThree.reviews = [reviewOne] as NSSet
+        } catch {
+            print("woopsies")
+            fatalError("Systemic issue with saving of cuisines in prior step.")
+        }
+        
+        saveContext()
     }
     
-    func previewData() {
+    /// MARK: - Default Cuisines implementation.
+    fileprivate var defaultCuisineNames: [String] {
+        return ["American", "Japanese", "Indian", "English", "Barbecue", "Mexican", "Italian", "Chinese", "Greek"]
+    }
+    
+    func populateCuisines() {
         
         let context = persistentContainer.viewContext
         
+        var cuisines: [Cuisine] = []
         defaultCuisineNames.forEach { name in
             let defaultObject = Cuisine(context: context)
             defaultObject.id = UUID()
             defaultObject.name = name
+            
+            cuisines.append(defaultObject)
         }
     
         saveContext()
