@@ -38,6 +38,7 @@ class RestaurantCollectionViewCell: UICollectionViewListCell {
         restaurantTitleLabel.font = UIFont.systemFont(ofSize: 18.0)
         cuisineLabel.font = UIFont.systemFont(ofSize: 14.0)
         
+        
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         starView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,23 +47,24 @@ class RestaurantCollectionViewCell: UICollectionViewListCell {
         reviewView.translatesAutoresizingMaskIntoConstraints = false
         
         
+        
         NSLayoutConstraint.activate([contentView.topAnchor.constraint(equalTo: topAnchor),
                                      contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
                                      contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
                                      contentView.leadingAnchor.constraint(equalTo: leadingAnchor)])
         
-        NSLayoutConstraint.activate([starView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4.0),
-                                     starView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4.0),
-                                        starView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+        NSLayoutConstraint.activate([starView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
                                      starView.widthAnchor.constraint(equalToConstant: 75.0),
                                      starView.heightAnchor.constraint(equalTo: starView.widthAnchor),
                                      starView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16.0)])
         
         NSLayoutConstraint.activate([restaurantTitleLabel.bottomAnchor.constraint(equalTo: contentView.centerYAnchor),
+                                        restaurantTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16.0),
                                      restaurantTitleLabel.leadingAnchor.constraint(equalTo: starView.trailingAnchor, constant: 8.0),
                                      restaurantTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: reviewView.leadingAnchor, constant: -16.0)])
         
-        NSLayoutConstraint.activate([cuisineLabel.topAnchor.constraint(equalTo: centerYAnchor),
+        NSLayoutConstraint.activate([cuisineLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16.0),
+                                     cuisineLabel.topAnchor.constraint(equalTo: contentView.centerYAnchor),
                                      cuisineLabel.leadingAnchor.constraint(equalTo: restaurantTitleLabel.leadingAnchor),
                                      cuisineLabel.trailingAnchor.constraint(lessThanOrEqualTo: reviewView.leadingAnchor, constant: -16.0)])
         

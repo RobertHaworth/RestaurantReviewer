@@ -43,7 +43,6 @@ class RestaurantsViewModel: NSObject, ObservableObject {
     init(contextManager: ContextManager) {
         self.contextManager = contextManager
         super.init()
-        fetch()
     }
     
     func fetch() {

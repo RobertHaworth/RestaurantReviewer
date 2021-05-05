@@ -17,7 +17,7 @@ class RestaurantsViewController: UIViewController {
     
     private let viewModel: RestaurantsViewModel
     
-    private let segmentController = UISegmentedControl()
+    private let segmentControl = UISegmentedControl()
     
     private var collectionView: UICollectionView!
     
@@ -44,6 +44,7 @@ class RestaurantsViewController: UIViewController {
     
     private func setupCollectionView() {
         var config = UICollectionLayoutListConfiguration(appearance: .plain)
+    
 
         config.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
             
@@ -67,7 +68,6 @@ class RestaurantsViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout.list(using: config)
         
         
-        
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         self.collectionView.delegate = self
         collectionView.backgroundColor = .white
@@ -89,25 +89,23 @@ class RestaurantsViewController: UIViewController {
     
     private func setupSegmentController() {
         
+        segmentControl.selectedSegmentTintColor = UIColor(Color.blue.opacity(0.4))
+        
         SortType.allCases
-            .map({ $0.description() })
             .enumerated()
-            .forEach { (index, display) in
-            segmentController.insertSegment(withTitle: display,
-                                            at: index,
-                                            animated: false)
+            .forEach { (index, type) in
+                let action = UIAction(title: type.description(),
+                                      handler: { [weak self] _ in self?.viewModel.sortType = type })
+                
+                segmentControl.insertSegment(action: action,
+                                                at: index,
+                                                animated: false)
+                
+                /// Setting the default sort type visible
+                if viewModel.sortType == type {
+                    segmentControl.selectedSegmentIndex = index
+                }
         }
-        
-        
-        segmentController.selectedSegmentTintColor = UIColor(Color.blue.opacity(0.4))
-        segmentController.selectedSegmentIndex = 1
-        segmentController.addTarget(self, action: #selector(sortChanged), for: .valueChanged)
-    }
-    
-    @objc
-    func sortChanged(_ segmentController: UISegmentedControl) {
-        guard let sort = SortType(rawValue: segmentController.selectedSegmentIndex) else { return }
-        viewModel.sortType = sort
     }
     
     private func setupCombine() {
@@ -116,12 +114,13 @@ class RestaurantsViewController: UIViewController {
                             .receive(on: DispatchQueue.main)
                             .sink { [weak self] updatedRestaurants in
                                 guard let self = self else { return }
-                                var snapshot = self.dataSource.snapshot()
-                                snapshot.deleteAllItems()
-                                snapshot.appendSections([.main])
-                                snapshot.appendItems(updatedRestaurants)
-                                self.dataSource.apply(snapshot)
-                                self.collectionView.reloadData() // This shouldn't be necessary.
+
+                                var newSnapshot = NSDiffableDataSourceSnapshot<Section, Restaurant>()
+                                newSnapshot.appendSections([.main])
+                                newSnapshot.appendItems(updatedRestaurants)
+
+                                self.dataSource.apply(newSnapshot)
+                                self.collectionView.reloadData()
                             }
     }
     
@@ -132,7 +131,7 @@ class RestaurantsViewController: UIViewController {
         setupDatasource()
         setupCombine()
         
-        view.addSubview(segmentController)
+        view.addSubview(segmentControl)
         view.addSubview(collectionView)
         view.backgroundColor = .white
         title = "Foodie!"
@@ -144,13 +143,13 @@ class RestaurantsViewController: UIViewController {
         
         
         
-        segmentController.translatesAutoresizingMaskIntoConstraints = false
+        segmentControl.translatesAutoresizingMaskIntoConstraints = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([segmentController.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                                     segmentController.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8.0)])
+        NSLayoutConstraint.activate([segmentControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                                     segmentControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8.0)])
         
-        NSLayoutConstraint.activate([collectionView.topAnchor.constraint(equalTo: segmentController.bottomAnchor, constant: 8.0),
+        NSLayoutConstraint.activate([collectionView.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8.0),
                                      collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
                                      collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
                                      collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -185,6 +184,11 @@ class RestaurantsViewController: UIViewController {
         
         let host = UIHostingController(rootView: createScreen)
         present(host, animated: true, completion: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.fetch()
     }
 }
 

@@ -22,7 +22,6 @@ struct RestaurantsView: View {
     
     var body: some View {
         NavigationView {
-            
             List(restaurants,
                  rowContent: { content in
                     NavigationLink(destination: ReviewsView(viewModel: ReviewsViewModel(contextManager: contextManager,
