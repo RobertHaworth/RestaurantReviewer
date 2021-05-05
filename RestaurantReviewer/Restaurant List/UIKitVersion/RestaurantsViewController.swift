@@ -17,6 +17,8 @@ class RestaurantsViewController: UIViewController {
     
     private let viewModel: RestaurantsViewModel
     
+    private let segmentController = UISegmentedControl()
+    
     private var collectionView: UICollectionView!
     
     private var dataSource: UICollectionViewDiffableDataSource<Section, Restaurant>!
@@ -64,6 +66,8 @@ class RestaurantsViewController: UIViewController {
         
         let layout = UICollectionViewCompositionalLayout.list(using: config)
         
+        
+        
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         self.collectionView.delegate = self
         collectionView.backgroundColor = .white
@@ -81,6 +85,29 @@ class RestaurantsViewController: UIViewController {
             return cv.dequeueConfiguredReusableCell(using: cellProvider, for: path, item: item)
         })
         
+    }
+    
+    private func setupSegmentController() {
+        
+        SortType.allCases
+            .map({ $0.description() })
+            .enumerated()
+            .forEach { (index, display) in
+            segmentController.insertSegment(withTitle: display,
+                                            at: index,
+                                            animated: false)
+        }
+        
+        
+        segmentController.selectedSegmentTintColor = UIColor(Color.blue.opacity(0.4))
+        segmentController.selectedSegmentIndex = 1
+        segmentController.addTarget(self, action: #selector(sortChanged), for: .valueChanged)
+    }
+    
+    @objc
+    func sortChanged(_ segmentController: UISegmentedControl) {
+        guard let sort = SortType(rawValue: segmentController.selectedSegmentIndex) else { return }
+        viewModel.sortType = sort
     }
     
     private func setupCombine() {
@@ -101,9 +128,11 @@ class RestaurantsViewController: UIViewController {
     func setupLayout() {
         
         setupCollectionView()
+        setupSegmentController()
         setupDatasource()
         setupCombine()
         
+        view.addSubview(segmentController)
         view.addSubview(collectionView)
         view.backgroundColor = .white
         title = "Foodie!"
@@ -115,9 +144,13 @@ class RestaurantsViewController: UIViewController {
         
         
         
+        segmentController.translatesAutoresizingMaskIntoConstraints = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+        NSLayoutConstraint.activate([segmentController.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                                     segmentController.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8.0)])
+        
+        NSLayoutConstraint.activate([collectionView.topAnchor.constraint(equalTo: segmentController.bottomAnchor, constant: 8.0),
                                      collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
                                      collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
                                      collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),

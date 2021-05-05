@@ -9,8 +9,19 @@ import Foundation
 import CoreData
 import SwiftUI
 
-enum SortType {
-    case averageRating, name, cuisine
+enum SortType: Int, CaseIterable {
+    case averageRating,
+         name,
+         totalReviews
+    
+    func description() -> String {
+        switch self {
+        case .averageRating: return "Average Rating"
+        case .name: return "Name"
+        case .totalReviews: return "Total Reviews"
+        }
+    }
+    
     
 }
 
@@ -20,9 +31,14 @@ class RestaurantsViewModel: NSObject, ObservableObject {
     
     @Published var restaurants: [Restaurant] = []
     
-
+    
     let contextManager: ContextManager
     
+    var sortType: SortType = .name {
+        didSet {
+            fetch()
+        }
+    }
     
     init(contextManager: ContextManager) {
         self.contextManager = contextManager
@@ -32,14 +48,23 @@ class RestaurantsViewModel: NSObject, ObservableObject {
     
     func fetch() {
         
+        var sortDescriptors: [NSSortDescriptor] = []
+        
+        switch sortType {
+        case .name:
+            sortDescriptors.append(NSSortDescriptor(keyPath: \Restaurant.name, ascending: true))
+        case .totalReviews:
+            sortDescriptors.append(NSSortDescriptor(keyPath: \Restaurant.reviewCount, ascending: false))
+        default: break
+        }
         
         if let existingController = resultsController {
-            
+            existingController.fetchRequest.sortDescriptors = sortDescriptors
             
         } else {
             let request = NSFetchRequest<Restaurant>(entityName: "Restaurant")
             
-            request.sortDescriptors = [NSSortDescriptor(keyPath: \Restaurant.name, ascending: true)]
+            request.sortDescriptors = sortDescriptors
             
             resultsController = NSFetchedResultsController(fetchRequest: request,
                                                            managedObjectContext: contextManager.persistentContainer.viewContext,
@@ -52,7 +77,12 @@ class RestaurantsViewModel: NSObject, ObservableObject {
         
         do {
             try resultsController?.performFetch()
-            restaurants = resultsController?.fetchedObjects ?? []
+            if sortType == .averageRating {
+                restaurants = (resultsController?.fetchedObjects ?? []).sorted(by: { $0.averageReview() > $1.averageReview() })
+            } else {
+                restaurants = (resultsController?.fetchedObjects ?? [])
+            }
+            
         } catch {
             print("big problem")
         }
@@ -70,6 +100,11 @@ class RestaurantsViewModel: NSObject, ObservableObject {
 extension RestaurantsViewModel: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         guard let items = controller.fetchedObjects as? [Restaurant] else { return }
-        restaurants = items
+        
+        if sortType == .averageRating {
+            restaurants = items.sorted(by: { $0.averageReview() > $1.averageReview() })
+        } else {
+            restaurants = items
+        }
     }
 }

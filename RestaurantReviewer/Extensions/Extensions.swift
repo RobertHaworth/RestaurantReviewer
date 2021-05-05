@@ -7,9 +7,6 @@
 
 import Foundation
 
-extension Array where Element == Cuisine {
-    
-}
 
 extension Restaurant {
     
