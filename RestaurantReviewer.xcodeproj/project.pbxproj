@@ -3,12 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		4A5B5C5526421EAA0092199C /* RestaurantsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5C5426421EAA0092199C /* RestaurantsViewModel.swift */; };
-		4A5B5C582642EC0F0092199C /* SwipeCell in Frameworks */ = {isa = PBXBuildFile; productRef = 4A5B5C572642EC0F0092199C /* SwipeCell */; };
 		4A5B5C5B2642F8500092199C /* RestaurantsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5C5A2642F84F0092199C /* RestaurantsViewController.swift */; };
 		4A5B5C5D2642FA7D0092199C /* RestaurantCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5C5C2642FA7D0092199C /* RestaurantCollectionViewCell.swift */; };
 		4A933C7B263DCF320065FE91 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A933C7A263DCF320065FE91 /* AppDelegate.swift */; };
@@ -81,7 +80,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A5B5C582642EC0F0092199C /* SwipeCell in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,7 +253,6 @@
 			);
 			name = RestaurantReviewer;
 			packageProductDependencies = (
-				4A5B5C572642EC0F0092199C /* SwipeCell */,
 			);
 			productName = RestaurantReviewer;
 			productReference = 4A933C77263DCF320065FE91 /* RestaurantReviewer.app */;
@@ -329,7 +326,6 @@
 			);
 			mainGroup = 4A933C6E263DCF320065FE91;
 			packageReferences = (
-				4A5B5C562642EC0F0092199C /* XCRemoteSwiftPackageReference "SwipeCell" */,
 			);
 			productRefGroup = 4A933C78263DCF320065FE91 /* Products */;
 			projectDirPath = "";
@@ -717,25 +713,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		4A5B5C562642EC0F0092199C /* XCRemoteSwiftPackageReference "SwipeCell" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EnesKaraosman/SwipeCell";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.2;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		4A5B5C572642EC0F0092199C /* SwipeCell */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4A5B5C562642EC0F0092199C /* XCRemoteSwiftPackageReference "SwipeCell" */;
-			productName = SwipeCell;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		4A933C80263DCF320065FE91 /* RestaurantReviewer.xcdatamodeld */ = {

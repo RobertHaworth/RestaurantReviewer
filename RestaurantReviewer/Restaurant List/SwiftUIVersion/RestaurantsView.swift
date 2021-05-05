@@ -11,7 +11,7 @@ import SwipeCell
 struct RestaurantsView: View {
     
     let contextManager: ContextManager
-        
+    
     @State private var showingSheet = false
     
     
@@ -25,12 +25,12 @@ struct RestaurantsView: View {
         NavigationView {
             
             List(restaurants,
-                           rowContent: { content in
-                              NavigationLink(destination: ReviewsView(viewModel: ReviewsViewModel(contextManager: contextManager,
-                                                                                                             restaurant: content))) {
-                              RestaurantView(content: content)
-                          }
-                      })
+                 rowContent: { content in
+                    NavigationLink(destination: ReviewsView(viewModel: ReviewsViewModel(contextManager: contextManager,
+                                                                                        restaurant: content))) {
+                        RestaurantView(content: content).environment(\.managedObjectContext, contextManager.persistentContainer.viewContext)
+                    }
+                 })
                 .navigationBarTitle("Foodie!")
                 .toolbar(content: {
                     ToolbarItem(placement: .primaryAction) {
@@ -43,8 +43,8 @@ struct RestaurantsView: View {
                 })
         }.sheet(isPresented: $showingSheet,
                 content: {
-                    CreateRestaurant(viewModel: CreateRestaurantViewModel(contextManager: contextManager))
-        })
+                    CreateRestaurant(viewModel: CreateRestaurantViewModel(contextManager: contextManager)).environment(\.managedObjectContext, contextManager.persistentContainer.viewContext)
+                })
         
         
     }

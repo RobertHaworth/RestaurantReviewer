@@ -11,13 +11,12 @@ import CoreData
 struct ReviewsView: View {
     
     @Environment(\.presentationMode) var presentation
-//    @Environment(\.managedObjectContext) var context
     @State var createReview = false
     
     @ObservedObject var viewModel: ReviewsViewModel
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center) {
                 RatingView(reviews: viewModel.restaurant.reviews?.allObjects as? [Review] ?? [],
                            formattedAverage: viewModel.restaurant.averageReviewDisplay())
@@ -25,9 +24,12 @@ struct ReviewsView: View {
                     Text(viewModel.restaurant.name ?? "").font(.title)
                     Text(viewModel.restaurant.cuisinesDisplay())
                 }
-            }
-            ReviewList(reviews: viewModel.restaurant.reviews?.allObjects as? [Review] ?? [])
-        }.padding([.horizontal, .bottom, .top], 10)
+            }.padding(10)
+            Rectangle()
+                .foregroundColor(.gray.opacity(0.4))
+                .frame(maxWidth: .infinity, maxHeight: 1.0, alignment: .center)
+            ReviewList(reviews: viewModel.restaurant.reviews?.allObjects as? [Review] ?? []).padding([.horizontal, .bottom], 10)
+        }
         .navigationBarTitle("Reviews")
         .toolbar(content: {
             ToolbarItem(placement: .primaryAction) {
