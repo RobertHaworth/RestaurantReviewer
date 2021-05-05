@@ -12,15 +12,23 @@ import SwiftUI
 class ContextManager {
     
     // MARK: - Singleton access.
-    static let instance: ContextManager = ContextManager(inMemory: true)
+    static let instance: ContextManager = {
+        let controller = ContextManager(inMemory: true)
+        
+        controller.initialRestaurant()
+        
+        controller.saveContext()
+        return controller
+    }()
     
+    /// Provides instance to pre-generate data to be used for SwiftUI Preview's, and likely Unit Testing.
     static var preview: ContextManager = {
         let controller = ContextManager(inMemory: true)
         
         let context = controller.persistentContainer.viewContext
         
         
-        controller.populateData()
+        controller.previewData()
         
         controller.saveContext()
         
@@ -34,7 +42,6 @@ class ContextManager {
     
     
     init(inMemory: Bool) {
-        
         persistentContainer = NSPersistentContainer(name: "RestaurantReviewer")
         
         if inMemory {
@@ -53,6 +60,7 @@ class ContextManager {
         
     }
     
+    /// Using this exclusively to easily load a Restaurant for SwiftUI previews.
     func previewRestaurant() -> Restaurant? {
         let context = persistentContainer.viewContext
         
@@ -64,24 +72,76 @@ class ContextManager {
         return nil
     }
     
+    func delete(object: NSManagedObject) -> Result<Bool, Error> {
+        let context = persistentContainer.viewContext
+        context.delete(object)
+        do {
+            try context.save()
+            return Result.success(true)
+        } catch {
+            return Result.failure(error)
+        }
+    }
+    
     // MARK: - Core Data Saving support
 
-    func saveContext () {
+    /// Returns true if save was successful and there were changes, false if there was no changes to save, and error if an error occurs during save.
+    @discardableResult
+    func saveContext() -> Result<Bool, Error> {
         let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()
+                return Result.success(true)
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                print("error found in save context \(error)")
+                return Result.failure(error)
             }
+        } else {
+            return Result.success(false)
         }
     }
     
+    func cuisines() -> [Cuisine] {
+        let context = persistentContainer.viewContext
+        do {
+            let request = NSFetchRequest<Cuisine>(entityName: "Cuisine")
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \Cuisine.name, ascending: true)]
+            let cuisines = try context.fetch(request)
+            
+            return cuisines
+        } catch {
+            return []
+        }
+    }
+    
+    fileprivate func initialRestaurant() {
+        let context = persistentContainer.viewContext
+        
+        let cuisineArray = cuisines()
+        
+        let demoRestaurant = Restaurant(context: context)
+        
+        demoRestaurant.id = UUID()
+        demoRestaurant.name = "Tex Tubb's Taco Palace"
+        
+        if let cuisineType = cuisineArray.first(where: { $0.name == "Mexican" }) {
+            demoRestaurant.cuisines = [cuisineType]
+        }
+        
+        let myReview = Review(context: context)
+        myReview.id = UUID()
+        myReview.createdDate = Date()
+        myReview.visitDate = Date()
+        myReview.notes = "Tex Tubb's Taco Palace is a fantastic taco shop. It has great food, intimate seating, and a fantastic salsa bar."
+        myReview.starCount = Double(5)
+        
+        demoRestaurant.reviews = [myReview]
+        
+    }
+    
     /// Pre Loading 3 restaurants
-    func populateData() {
+    fileprivate func previewData() {
         let context = persistentContainer.viewContext
         
         do {
@@ -116,8 +176,8 @@ class ContextManager {
             let reviewOne = Review(context: context)
             
             reviewOne.id = UUID()
-            reviewOne.visitDate = Date()
             reviewOne.createdDate = Date()
+            reviewOne.visitDate = Date()
             reviewOne.notes = "Tex Tubb's may be the single greatest taco shop ever."
             reviewOne.starCount = 5
             
@@ -144,10 +204,8 @@ class ContextManager {
             let defaultObject = Cuisine(context: context)
             defaultObject.id = UUID()
             defaultObject.name = name
-            
+            defaultObject.restaurants = NSSet()
             cuisines.append(defaultObject)
         }
-    
-        saveContext()
     }
 }

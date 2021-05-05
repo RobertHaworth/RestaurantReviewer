@@ -8,21 +8,26 @@
 import SwiftUI
 import CoreData
 
-struct RestaurantDetails: View {
+struct ReviewsView: View {
     
-    @Environment(\.managedObjectContext) var context
+    @Environment(\.presentationMode) var presentation
+//    @Environment(\.managedObjectContext) var context
     @State var createReview = false
     
-    @ObservedObject var viewModel: RestaurantDetailViewModel
+    @ObservedObject var viewModel: ReviewsViewModel
     
     var body: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .center) {
-                RatingView(reviews: viewModel.reviews)
-                Text(viewModel.restaurant.name ?? "").font(.title)
+                RatingView(reviews: viewModel.restaurant.reviews?.allObjects as? [Review] ?? [],
+                           formattedAverage: viewModel.restaurant.averageReviewDisplay())
+                VStack(alignment: .leading) {
+                    Text(viewModel.restaurant.name ?? "").font(.title)
+                    Text(viewModel.restaurant.cuisinesDisplay())
+                }
             }
-            ReviewList(reviews: viewModel.reviews)
-        }.padding([.horizontal, .bottom], 10)
+            ReviewList(reviews: viewModel.restaurant.reviews?.allObjects as? [Review] ?? [])
+        }.padding([.horizontal, .bottom, .top], 10)
         .navigationBarTitle("Reviews")
         .toolbar(content: {
             ToolbarItem(placement: .primaryAction) {
@@ -34,7 +39,7 @@ struct RestaurantDetails: View {
         })
         .sheet(isPresented: $createReview,
                content: {
-                CreateReview(viewModel: CreateReviewViewModel(for: viewModel.restaurant)).environment(\.managedObjectContext, context)
+                CreateReview(viewModel: CreateReviewViewModel(contextManager: viewModel.contextManager, for: viewModel.restaurant))
         })
     }
 }
@@ -58,7 +63,7 @@ struct ReviewList: View {
                     Spacer()
                     Text("visit date:").font(.callout)
                     Text(review.visitDate!, style: .date).font(.callout)
-                }.padding(.horizontal, 8)
+                }
             }
         }
     }
@@ -67,6 +72,7 @@ struct ReviewList: View {
 struct RatingView: View {
     
     var reviews: [Review]
+    var formattedAverage: String
     
     var body: some View {
         ZStack(alignment: .center) {
@@ -74,8 +80,8 @@ struct RatingView: View {
                 .renderingMode(.template)
                 .resizable()
                 .foregroundColor(.yellow)
-                .frame(width: 100, height: 100, alignment: .center)
-            Text(reviews.reviewAverage()).font(.headline)
+                .frame(width: 75, height: 75, alignment: .center)
+            Text(formattedAverage).font(.subheadline)
         }
     }
 }
@@ -86,6 +92,7 @@ struct RestaurantDetails_Previews: PreviewProvider {
 
         let restaurant = previewer.previewRestaurant()
         
-        return RestaurantDetails(viewModel: RestaurantDetailViewModel(context: previewer.persistentContainer.viewContext, restaurant: restaurant!)).environment(\.managedObjectContext, previewer.persistentContainer.viewContext)
+        return ReviewsView(viewModel: ReviewsViewModel(contextManager: ContextManager.preview,
+                                                       restaurant: restaurant!))
     }
 }

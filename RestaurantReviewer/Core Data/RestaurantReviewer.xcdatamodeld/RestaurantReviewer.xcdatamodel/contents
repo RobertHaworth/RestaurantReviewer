@@ -8,20 +8,22 @@
     <entity name="Restaurant" representedClassName=".Restaurant" syncable="YES" codeGenerationType="class">
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="reviewCount" optional="YES" attributeType="Double" derived="YES" derivationExpression="reviews.@count" usesScalarValueType="YES"/>
+        <attribute name="totalStars" optional="YES" attributeType="Double" derived="YES" derivationExpression="reviews.starCount.@sum" usesScalarValueType="YES"/>
         <relationship name="cuisines" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Cuisine" inverseName="restaurants" inverseEntity="Cuisine"/>
-        <relationship name="reviews" toMany="YES" deletionRule="Nullify" destinationEntity="Review" inverseName="restaurant" inverseEntity="Review"/>
+        <relationship name="reviews" toMany="YES" deletionRule="Cascade" destinationEntity="Review" inverseName="restaurant" inverseEntity="Review"/>
     </entity>
     <entity name="Review" representedClassName=".Review" syncable="YES" codeGenerationType="class">
         <attribute name="createdDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
-        <attribute name="starCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="starCount" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="visitDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="restaurant" maxCount="1" deletionRule="Cascade" destinationEntity="Restaurant" inverseName="reviews" inverseEntity="Restaurant"/>
     </entity>
     <elements>
         <element name="Cuisine" positionX="-88.21051025390625" positionY="50.27069091796875" width="128" height="74"/>
-        <element name="Restaurant" positionX="-216.8867797851562" positionY="-129.0062866210938" width="128" height="89"/>
-        <element name="Review" positionX="83.4088134765625" positionY="-98.37188720703125" width="128" height="14"/>
+        <element name="Restaurant" positionX="-216.8867797851562" positionY="-129.0062866210938" width="128" height="119"/>
+        <element name="Review" positionX="83.4088134765625" positionY="-98.37188720703125" width="128" height="119"/>
     </elements>
 </model>

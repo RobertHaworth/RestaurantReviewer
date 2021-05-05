@@ -10,7 +10,7 @@ import SwiftUI
 struct CreateRestaurant: View {
     
     @Environment(\.presentationMode) var presentationMode
-    @Environment(\.managedObjectContext) var context
+//    @Environment(\.managedObjectContext) var context
     
     @ObservedObject var viewModel: CreateRestaurantViewModel
     
@@ -19,12 +19,15 @@ struct CreateRestaurant: View {
                                                      ascending: true)]
     ) var cuisines: FetchedResults<Cuisine>
     
+    /// Custom Dismiss action for when this UI is presented from a UIViewController
+    var dismissAction: (() -> Void)?
+    
     var body: some View {
         NavigationView {
             VStack {
                 VStack(alignment: .leading) {
                     Text("Enter your Restaurant name:")
-                    TextField("North and South", text: $viewModel.name)
+                    TextField("Restaurant name", text: $viewModel.name)
                         .padding(4)
                         .border(Color.black,
                                 width: 1)
@@ -44,17 +47,21 @@ struct CreateRestaurant: View {
                      })
             }
             .padding(0)
-            .navigationBarTitle("New Restaurant")
+            .navigationBarTitle(viewModel.viewTitle())
             .toolbar(content: {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button(action: { presentationMode.wrappedValue.dismiss() },
+                        Button(action: {
+                            presentationMode.wrappedValue.dismiss()
+                            dismissAction?()
+                        },
                                label: { Text("Cancel") })
                     }
                     ToolbarItem(placement: .primaryAction,
                                 content: {
                                     Button(action: {
-                                        if viewModel.save(contextManager: context) {
+                                        if viewModel.save() {
                                             presentationMode.wrappedValue.dismiss()
+                                            dismissAction?()
                                         }
                                     },
                                     label: { Text("Save") })
@@ -64,7 +71,7 @@ struct CreateRestaurant: View {
         }.alert(isPresented: $viewModel.error, content: {
             Alert(title: Text("Save Failure"),
                   message: Text("Unable to save restaurant at this time, please try again later"),
-                  dismissButton: .default(Text("Got it!")))
+                  dismissButton: .default(Text("Done")))
             
         })
     }
@@ -86,7 +93,6 @@ struct RowContent: View {
 
 struct CreateRestaurant_Previews: PreviewProvider {
     static var previews: some View {
-        let context = ContextManager.preview.persistentContainer.viewContext
-        CreateRestaurant(viewModel: CreateRestaurantViewModel()).environment(\.managedObjectContext, context)
+        CreateRestaurant(viewModel: CreateRestaurantViewModel(contextManager: ContextManager.preview))
     }
 }

@@ -12,23 +12,36 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    let enableSwiftUI = false
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
         // Get the managed object context from the shared persistent container.
-        let context = ContextManager.preview.persistentContainer.viewContext
+//        let context = ContextManager.instance.persistentContainer.viewContext
 
-        // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
-        // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
-        let contentView = RestaurantsView().environment(\.managedObjectContext, context)
+        /// Swift UI view.
+        
+        let rootViewController: UIViewController
+        
+        /// We are diverging between SwiftUI and UIKit for our entry screen, to demonstrate swipe actions as they are not properly implemented into SwiftUI yet.
+        /// In a normal application request, I would prefer to work with  the designer to find an alternative way to enable the delete and edit actions as swipe gestures although being native actions, are less discoverable than other forms of design. This is intended to show both options are viable.
+        if enableSwiftUI {
+            let contentView = RestaurantsView(contextManager: ContextManager.instance)
+                                .environment(\.managedObjectContext, ContextManager.instance.persistentContainer.viewContext)
+            rootViewController = UIHostingController(rootView: contentView)
+        } else {
+            UINavigationBar.appearance().barTintColor = .white
+            let contentView = RestaurantsViewController(viewModel: RestaurantsViewModel(contextManager: ContextManager.instance))
+            rootViewController = UINavigationController(rootViewController: contentView)
+        }
+        
+        /// UIKit view
+        
 
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = UIHostingController(rootView: contentView)
+            window.rootViewController = rootViewController
             self.window = window
             window.makeKeyAndVisible()
         }

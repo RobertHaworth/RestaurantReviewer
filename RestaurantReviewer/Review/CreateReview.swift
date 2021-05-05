@@ -43,7 +43,7 @@ struct CreateReview: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: {
-                        if viewModel.save(with: context) {
+                        if viewModel.save() {
                             presentationMode.wrappedValue.dismiss()
                         } else {
                             /// Do the Error.
@@ -79,6 +79,6 @@ struct CreateReview_Previews: PreviewProvider {
     static var previews: some View {
         let previewContext = ContextManager.preview
         let restaurant = previewContext.previewRestaurant()!
-        CreateReview(viewModel: CreateReviewViewModel(for: restaurant)).environment(\.managedObjectContext, previewContext.persistentContainer.viewContext)
+        CreateReview(viewModel: CreateReviewViewModel(contextManager: ContextManager.preview, for: restaurant))
     }
 }

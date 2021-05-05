@@ -15,29 +15,30 @@ class CreateReviewViewModel: ObservableObject {
     @Published var reviewText: String = ""
     
     private let restaurant: Restaurant
+    private let contextManager: ContextManager
     
     @Published var error = false
     
-    init(for restaurant: Restaurant) {
+    init(contextManager: ContextManager, for restaurant: Restaurant) {
+        self.contextManager = contextManager
         self.restaurant = restaurant
     }
     
-    func save(with context: NSManagedObjectContext) -> Bool {
-        let newReview = Review(context: context)
+    func save() -> Bool {
+        let newReview = Review(context: contextManager.persistentContainer.viewContext)
         newReview.id = UUID()
         newReview.visitDate = visitDate
         newReview.createdDate = Date()
         newReview.notes = reviewText
-        newReview.starCount = Int16(reviewRating)
+        newReview.starCount = Double(reviewRating)
         newReview.restaurant = restaurant
         
-        do {
-            try context.save()
-            return true
-        } catch {
-            print("deal with errors here \(error)")
+        switch contextManager.saveContext() {
+        case let .success(result): return result
+        case .failure(_):
             self.error = true
             return false
         }
+        
     }
 }
