@@ -12,17 +12,6 @@ import SwiftUI
 enum SortType {
     case averageRating, name, cuisine
     
-//    func sortDescriptor() -> NSSortDescriptor? {
-//        switch self {
-////        case .averageRating:
-////            return NSSortDescriptor(keyPath: \Restaurant., ascending: <#T##Bool#>)
-//        case .name:
-//            return NSSortDescriptor(keyPath: \Restaurant.name, ascending: true)
-//        case .cuisine:
-//            return NSSortDescriptor(keyPath: \Restaurant.cuisines, ascending: true)
-//        default: return nil
-//        }
-//    }
 }
 
 class RestaurantsViewModel: NSObject, ObservableObject {
@@ -31,16 +20,9 @@ class RestaurantsViewModel: NSObject, ObservableObject {
     
     @Published var restaurants: [Restaurant] = []
     
-//    @State var sortState: SortType = .averageRating
-    
-//    let context: NSManagedObjectContext
+
     let contextManager: ContextManager
     
-//    init(context: NSManagedObjectContext) {
-//        self.context = context
-//        super.init()
-//        fetch()
-//    }
     
     init(contextManager: ContextManager) {
         self.contextManager = contextManager
