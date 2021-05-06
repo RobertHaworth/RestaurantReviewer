@@ -14,7 +14,7 @@ class ContextManager {
     // MARK: - Singleton access.
     static let instance: ContextManager = {
         /// Change inMemory to false if you want on-disk persistence.
-        let controller = ContextManager(inMemory: false)
+        let controller = ContextManager(inMemory: true)
         
         controller.initialRestaurant()
         
