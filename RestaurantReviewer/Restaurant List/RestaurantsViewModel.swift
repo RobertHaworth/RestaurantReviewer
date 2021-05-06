@@ -61,7 +61,7 @@ class RestaurantsViewModel: NSObject, ObservableObject {
             existingController.fetchRequest.sortDescriptors = sortDescriptors
             
         } else {
-            let request = NSFetchRequest<Restaurant>(entityName: "Restaurant")
+            let request: NSFetchRequest<Restaurant> = Restaurant.fetchRequest()
             
             request.sortDescriptors = sortDescriptors
             

@@ -34,7 +34,7 @@ class RestaurantReviewerTests: XCTestCase {
         
         _ = viewModel.save()
         
-        let request = NSFetchRequest<Restaurant>(entityName: "Restaurant")
+        let request: NSFetchRequest<Restaurant> = Restaurant.fetchRequest()
         request.predicate = NSPredicate(format: "name == %@", "Example Restaurant")
         do {
             let response = try manager.persistentContainer.viewContext.fetch(request)

@@ -13,7 +13,8 @@ class ContextManager {
     
     // MARK: - Singleton access.
     static let instance: ContextManager = {
-        let controller = ContextManager(inMemory: true)
+        /// Change inMemory to false if you want on-disk persistence.
+        let controller = ContextManager(inMemory: false)
         
         controller.initialRestaurant()
         
@@ -65,7 +66,7 @@ class ContextManager {
         let context = persistentContainer.viewContext
         
         do {
-            return try context.fetch(NSFetchRequest<Restaurant>(entityName: "Restaurant")).first(where: { ($0.reviews?.count ?? 0) > 0 })
+            return try context.fetch(Restaurant.fetchRequest()).first(where: { ($0.reviews?.count ?? 0) > 0 })
         } catch {
             print("error retrieving restaurant for previews")
         }
@@ -115,7 +116,19 @@ class ContextManager {
         }
     }
     
+    
+    /// Adds an initial restaurant if there is not one. This is for demo purposes.
     fileprivate func initialRestaurant() {
+        guard !cuisines().isEmpty else { return }
+        
+        do {
+            if try !persistentContainer.viewContext.fetch(Restaurant.fetchRequest()).isEmpty {
+                return
+            }
+        } catch {
+            return
+        }
+        
         let context = persistentContainer.viewContext
         
         let cuisineArray = cuisines()
@@ -197,7 +210,10 @@ class ContextManager {
     
     func populateCuisines() {
         
+        guard cuisines().isEmpty else { return }
+        
         let context = persistentContainer.viewContext
+        
         
         var cuisines: [Cuisine] = []
         defaultCuisineNames.forEach { name in
@@ -207,5 +223,6 @@ class ContextManager {
             defaultObject.restaurants = NSSet()
             cuisines.append(defaultObject)
         }
+        saveContext()
     }
 }

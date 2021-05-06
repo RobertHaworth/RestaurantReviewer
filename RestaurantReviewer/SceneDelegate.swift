@@ -12,14 +12,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    /// Toggling this to true will change the Root View Controller to the "SwiftUI" version. This version does not have edit/delete implemented as cell-swipe has yet to be implemented for Lists.
     let enableSwiftUI = false
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-
-        // Get the managed object context from the shared persistent container.
-//        let context = ContextManager.instance.persistentContainer.viewContext
-
-        /// Swift UI view.
         
         let rootViewController: UIViewController
         
@@ -35,10 +31,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             rootViewController = UINavigationController(rootViewController: contentView)
         }
         
-        /// UIKit view
-        
-
-        // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = rootViewController
