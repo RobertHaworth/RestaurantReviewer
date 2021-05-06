@@ -95,7 +95,6 @@ class ContextManager {
                 try context.save()
                 return Result.success(true)
             } catch {
-                print("error found in save context \(error)")
                 return Result.failure(error)
             }
         } else {
@@ -196,7 +195,6 @@ class ContextManager {
             
             restaurantThree.reviews = [reviewOne] as NSSet
         } catch {
-            print("woopsies")
             fatalError("Systemic issue with saving of cuisines in prior step.")
         }
         
